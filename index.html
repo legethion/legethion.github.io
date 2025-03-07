@@ -14,7 +14,7 @@
             font-style: normal;
             font-weight: 600;
             font-display: swap;
-            src: url(/font/ShantellSans-Regular.ttf) format('ttf');
+            src: url(/font/ShantellSans-Regular.ttf) format('truetype');
         }
 
         * {
@@ -32,11 +32,16 @@
             overflow: hidden;
         }
 
+        #app {
+            position: relative;
+        }
+
         .container {
             background-color: #f5e0dc;
             max-width: 640px;
             height: 100dvh;
             margin: 0 auto;
+            overflow: hidden;
         }
 
         .interface {
@@ -116,10 +121,44 @@
             height: 120px;
             z-index: 50;
         }
+
+        .congratulation {
+            position: absolute;
+            background: rgba(24, 24, 37, 0.95);
+            color: #cdd6f4;
+            font-size: 22px;
+            left: 20px;
+            right: 20px;
+            top: 20px;
+            bottom: 20px;
+            border: 10px solid #eba0ac; 
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 999;
+        }
     </style>
 
     <div class="container">
         <div id="app">
+            <div class="congratulation" v-if="isFinish">
+                <p style="text-align: center;">Победа великим садоводам!</p>
+                <p>
+                    Дорогие, милые, прекрасные и обворожительные девушки Лаборатории Качества!
+                    <br><br>
+                    Мы, ваши вечные стражники и защитники поздравляем вас с 8 Марта!
+                    <br><br>
+                    Желаем вам позитивного весеннего настроения. Пусть у 
+                    вас в сердце всегда будет гореть огонь и страсть к новым свершениям. Ваши очаровательные улыбки помогают нам выполнять задачи 
+                    в 10 раз быстрее. Невероятная магия!
+                    <br><br>
+                    Пусть в вашем доме будут царить только уют, спокойствие и любимые люди, согревающие вас в холодные дни.
+
+                    Будьте здоровы, красивы и счастливы. С 8 Марта!
+                </p>
+                <p style="text-align: right;">
+                    © Мужчины Лаборатории Качества
+                </p>
+            </div>
             <div class="interface">
                 <div class="status">
                     <div class="status__star">
@@ -129,9 +168,7 @@
                 <div class="flower">
                     <div @click="clickOnFlower" class="flower__button" :style="{ 'background': currentStage }"></div>
                 </div>
-                <div class="grass">
-                
-                </div>
+                <div class="grass"></div>
             </div>
         </div>
     </div>
@@ -143,10 +180,10 @@
             setup() {
                 const stages = [
                     { stage: 1, requirementStars: 0 },
-                    { stage: 2, requirementStars: 20 },
-                    { stage: 3, requirementStars: 40 },
-                    { stage: 4, requirementStars: 60 },
-                    { stage: 5, requirementStars: 80 }
+                    { stage: 2, requirementStars: 25 },
+                    { stage: 3, requirementStars: 50 },
+                    { stage: 4, requirementStars: 75 },
+                    { stage: 5, requirementStars: 100 }
                 ];
 
                 const butterflyImages = [
@@ -159,11 +196,19 @@
                 let container = null;
                 let containerRect = null;
 
+                let bugCreatorInterval = null;
+
+                const isFinish = ref(true);
+
                 const stars = ref(0);
 
                 const currentStage = computed(() => {
                     const stageIndex = stages.findLast(stage => stage.requirementStars <= stars.value).stage
-                    return `url("/images/FlowerStage${stageIndex}.png") no-repeat`
+                    if (stageIndex === 5) {
+                        isFinish.value = true;
+                        clearInterval(bugCreatorInterval);
+                    }
+                    return `url("/images/FlowerStage${stageIndex}.png") no-repeat`;
                 })
 
                 function clickOnFlower(event) {
@@ -272,8 +317,8 @@
                     bug.src = isLeft ? '/images/bug-from-left.png' : '/images/bug-from-right.png';
 
                     const startX = isLeft ? 
-                        containerRect.left - 50 :
-                        containerRect.right + 50;
+                        containerRect.left - 1 :
+                        containerRect.right + 1;
                     const startY = containerRect.bottom - 120;
 
                     bug.style.left = `${startX}px`;
@@ -314,6 +359,11 @@
                         if (stars.value > 0) {
                             stars.value--;
                         }
+
+                        if (isFinish.value === true) {
+                            document.body.removeChild(bug);
+                            clearInterval(starDecreaseInterval);
+                        }
                     }, 100);
 
                     bug.addEventListener('click', () => {
@@ -341,7 +391,7 @@
                         createButterfly();
                     }
 
-                    setInterval(createBug, 5000);
+                    bugCreatorInterval = setInterval(createBug, 5000);
 
                     window.addEventListener('resize', () => {
                         containerRect = container.getBoundingClientRect();
@@ -351,7 +401,8 @@
                 return {
                     stars,
                     currentStage,
-                    clickOnFlower
+                    isFinish,
+                    clickOnFlower,
                 }
             }
         })
