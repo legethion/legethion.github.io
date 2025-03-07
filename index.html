@@ -195,9 +195,15 @@
     <audio id="audio-next-level" src="/sounds/next-level.mp3" preload="auto" style="display:none;"></audio>
     <audio id="audio-completed" src="/sounds/completed.mp3" preload="auto" style="display:none;"></audio>
     <audio id="audio-punch" src="/sounds/punch.mp3" preload="auto" style="display:none;"></audio>
+    <audio id="audio-music" src="/sounds/music.mp3" preload="auto" style="display:none;"></audio>
 
     <script>
         const { createApp, ref, computed, watch, onMounted  } = Vue
+
+        const audioNextLevel = document.getElementById('audio-next-level');
+        const audioCompleted = document.getElementById('audio-completed');
+        const audioPunch = document.getElementById('audio-punch');
+        const audioMusic = document.getElementById('audio-music');
 
         const app = createApp({
             setup() {
@@ -208,10 +214,6 @@
                     { stage: 4, requirementStars: 75 },
                     { stage: 5, requirementStars: 100 }
                 ];
-
-                const audioNextLevel = document.getElementById('audio-next-level');
-                const audioCompleted = document.getElementById('audio-completed');
-                const audioPunch = document.getElementById('audio-punch');
 
                 const butterflyImages = [
                     '/images/Butterfly1.png',
@@ -449,7 +451,10 @@
             }
         })
         
-        app.mount('#app')
+        app.mount('#app');
+
+        audioMusic.loop = true;
+        audioMusic.play();
     </script>
 </body>
 </html>
