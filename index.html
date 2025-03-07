@@ -193,7 +193,7 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted  } = Vue
+        const { createApp, ref, computed, watch, onMounted  } = Vue
 
         const app = createApp({
             setup() {
@@ -223,12 +223,29 @@
 
                 const currentStage = computed(() => {
                     const stageIndex = stages.findLast(stage => stage.requirementStars <= stars.value).stage
-                    if (stageIndex === 5) {
-                        isFinish.value = true;
-                        clearInterval(bugCreatorInterval);
-                    }
                     return `url("/images/FlowerStage${stageIndex}.png") no-repeat`;
                 })
+
+                watch(
+                    () => stages.findLast(stage => stage.requirementStars <= stars.value).stage,
+                    (newStageIndex, oldStageIndex) => {
+                        if (newStageIndex !== 5 && newStageIndex > oldStageIndex) {
+                            const audioElement = document.createElement('audio');
+                            audioElement.setAttribute('src', '/sounds/next-level.mp3');
+                            audioElement.play();
+                        }
+
+                        if (newStageIndex === 5) {
+                            isFinish.value = true;
+                            clearInterval(bugCreatorInterval);
+                            const audioElement = document.createElement('audio');
+                            audioElement.setAttribute('src', '/sounds/completed.mp3');
+                            audioElement.play();
+                        }
+                    },
+
+                    
+                );
 
                 function clickOnFlower(event) {
                     stars.value++
@@ -394,6 +411,10 @@
                         document.body.appendChild(flyswatter);
                         bug.setAttribute('swatted', '');
                         clearInterval(starDecreaseInterval);
+
+                        const audioElement = document.createElement('audio');
+                        audioElement.setAttribute('src', '/sounds/punch.mp3');
+                        audioElement.play();
 
                         setTimeout(() => {
                             document.body.removeChild(flyswatter);
