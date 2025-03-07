@@ -183,7 +183,7 @@
                 <div class="grass"></div>
             </div>
         </div>
-        <div style="position: absolute; left: 9999;">
+        <div style="position: absolute; left: 9999; display: none;">
             <img src="/images/FlowerStage1.png" alt="">
             <img src="/images/FlowerStage2.png" alt="">
             <img src="/images/FlowerStage3.png" alt="">
@@ -204,6 +204,8 @@
         const audioCompleted = document.getElementById('audio-completed');
         const audioPunch = document.getElementById('audio-punch');
         const audioMusic = document.getElementById('audio-music');
+
+        let isStarted = false;
 
         const app = createApp({
             setup() {
@@ -256,6 +258,12 @@
                 function clickOnFlower(event) {
                     stars.value++
                     createHeart(event.clientX, event.clientY)
+
+                    if (!isStarted) {
+                        isStarted = true;
+                        audioMusic.loop = true;
+                        audioMusic.play();
+                    }
                 }
 
                 function createHeart(x, y) {
@@ -452,9 +460,6 @@
         })
         
         app.mount('#app');
-
-        audioMusic.loop = true;
-        audioMusic.play();
     </script>
 </body>
 </html>
