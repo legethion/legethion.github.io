@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>8 Марта 2025 в Лаборатории Качества</title>
+</head>
+<body>
+    <script src="/vue.global.js"></script>
+
+    <style>
+        @font-face {
+            font-family: 'ShantellSans';
+            font-style: normal;
+            font-weight: 600;
+            font-display: swap;
+            src: url(/font/ShantellSans-Regular.ttf) format('ttf');
+        }
+
+        html, body {
+            font-family: 'ShantellSans';
+            color: #181825;
+            background-color: #1e1e2e;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: #f5e0dc;
+            max-width: 640px;
+            height: 100vh;
+            margin: 0 auto;
+        }
+
+        .interface {
+            display: flex;
+            flex-direction: column;
+            align-content: stretch;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .status__star {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: #745573;
+            background: url('/images/Star-x2.png') no-repeat;
+            background-size: contain;
+            background-position: center;
+            height: 120px;
+            width: 100%;
+            z-index: 20;
+        }
+
+        .grass {
+            background: url('/images/NavigationBar.png');
+            background-size: contain;
+            width: 200%;
+            height: 82px;
+            margin-top: auto;
+            z-index: 30;
+        }
+
+        .flower {
+            flex-grow: 1;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: -20px;
+        }
+
+        .flower__button {
+            background: url('/images/FlowerStage1.png') no-repeat;
+            background-size: contain !important;
+            background-position: center !important;
+            height: 400px;
+            width: 100%;
+            border: 0;
+            cursor: pointer;
+            z-index: 20;
+        }
+        
+        .heart, .butterfly, .bug, .flyswatter {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            z-index: 10;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .heart {
+            width: 60px;
+            height: 60px;
+        }
+
+        .bug {
+            width: 80px;
+            height: 80px;
+            z-index: 40;
+        }
+
+        .flyswatter {
+            width: 120px;
+            height: 120px;
+            z-index: 50;
+        }
+    </style>
+
+    <div class="container">
+        <div id="app">
+            <div class="interface">
+                <div class="status">
+                    <div class="status__star">
+                        {{ stars }}
+                    </div>
+                </div>
+                <div class="flower">
+                    <button @click="clickOnFlower" class="flower__button" :style="{ 'background': currentStage }"></button>
+                </div>
+                <div class="grass">
+                
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted  } = Vue
+
+        const app = createApp({
+            setup() {
+                const stages = [
+                    { stage: 1, requirementStars: 0 },
+                    { stage: 2, requirementStars: 20 },
+                    { stage: 3, requirementStars: 40 },
+                    { stage: 4, requirementStars: 60 },
+                    { stage: 5, requirementStars: 80 }
+                ];
+
+                const butterflyImages = [
+                    '/images/Butterfly1.png',
+                    '/images/Butterfly2.png',
+                    '/images/Butterfly3.png',
+                    '/images/Butterfly4.png'
+                ];
+
+                let container = null;
+                let containerRect = null;
+
+                const stars = ref(0);
+
+                const currentStage = computed(() => {
+                    const stageIndex = stages.findLast(stage => stage.requirementStars <= stars.value).stage
+                    return `url("/images/FlowerStage${stageIndex}.png") no-repeat`
+                })
+
+                function clickOnFlower(event) {
+                    stars.value++
+                    createHeart(event.clientX, event.clientY)
+                }
+
+                function createHeart(x, y) {
+                    const heart = document.createElement('img');
+                    heart.src = '/images/Heart.png';
+                    heart.classList.add('heart');
+                    heart.style.left = `${x - 25}px`;
+                    heart.style.top = `${y - 25}px`;
+                    document.body.appendChild(heart);
+
+                    const angle = Math.random() * 2 * Math.PI;
+                    const speed = 2 + Math.random() * 0.1;
+
+                    const dx = Math.cos(angle) * speed;
+                    const dy = Math.sin(angle) * speed;
+
+                    function animate() {
+                        x += dx;
+                        y += dy;
+
+                        heart.style.left = `${x}px`;
+                        heart.style.top = `${y}px`;
+
+                        if (
+                            x < containerRect.left || 
+                            x > containerRect.right - heart.offsetWidth || 
+                            y < containerRect.top || 
+                            y > containerRect.bottom - heart.offsetHeight
+                        ) {
+                            document.body.removeChild(heart);
+                        } else {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+
+                    animate();
+                }
+
+                function createButterfly() {
+                    const butterfly = document.createElement('img');
+                    butterfly.src = butterflyImages[Math.floor(Math.random() * butterflyImages.length)];
+                    butterfly.classList.add('butterfly');
+                    document.body.appendChild(butterfly);
+
+                    const isLeft = Math.random() > 0.5;
+
+                    const startX = isLeft ? 
+                        containerRect.left + 1 :
+                        containerRect.right - 1;
+                    const startY = Math.random() * (containerRect.bottom - containerRect.top) + containerRect.top;
+
+                    butterfly.style.left = `${startX}px`;
+                    butterfly.style.top = `${startY}px`;
+
+                    const angle = isLeft ? 
+                        Math.random() * Math.PI / 4 - Math.PI / 8 :
+                        Math.random() * Math.PI / 4 + Math.PI * 7 / 8;
+
+                    const speed = 1 + Math.random() * 0.2;
+
+                    const dx = Math.cos(angle) * speed;
+                    const dy = Math.sin(angle) * speed;
+
+                    let x = startX;
+                    let y = startY;
+
+                    function animate() {
+                        x += dx;
+                        y += dy;
+
+                        const sway = Math.sin(Date.now() / 200) * 70;
+                        butterfly.style.transform = `translate(${sway}px, 0)`;
+
+                        butterfly.style.left = `${x}px`;
+                        butterfly.style.top = `${y}px`;
+
+                        if (
+                            x < containerRect.left ||
+                            x > containerRect.right - butterfly.offsetWidth ||
+                            y < containerRect.top ||
+                            y > containerRect.bottom - butterfly.offsetHeight
+                        ) {
+                            document.body.removeChild(butterfly);
+                            setTimeout(createButterfly, 1000);
+                        } else {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+
+                    animate();
+                }
+
+                function createBug() {
+                    const bug = document.createElement('img');
+                    bug.src = '/images/Bug.png';
+                    bug.classList.add('bug');
+                    document.body.appendChild(bug);
+
+                    const isLeft = Math.random() > 0.5;
+
+                    bug.src = isLeft ? '/images/bug-from-left.png' : '/images/bug-from-right.png';
+
+                    const startX = isLeft ? 
+                        containerRect.left - 50 :
+                        containerRect.right + 50;
+                    const startY = containerRect.bottom - 120;
+
+                    bug.style.left = `${startX}px`;
+                    bug.style.top = `${startY}px`;
+
+                    const flowerRect = document.querySelector('.flower__button').getBoundingClientRect();
+                    const targetX = flowerRect.left + flowerRect.width / 2;
+                    const targetY = containerRect.bottom - 100;
+
+                    const angle = Math.atan2(targetY - startY, targetX - startX);
+                    const speed = 1 + Math.random() * 0.2;
+
+                    const dx = Math.cos(angle) * speed;
+                    const dy = Math.sin(angle) * speed;
+
+                    let x = startX;
+                    let y = startY;
+
+                    let starDecreaseInterval = null;
+
+                    function animate() {
+                        x += dx;
+                        y += dy;
+
+                        bug.style.left = `${x}px`;
+                        bug.style.top = `${y}px`;
+
+                        if (bug.hasAttribute('swatted') || (Math.abs(x - targetX) < 10 && Math.abs(y - targetY) < 10)) {
+                            return;
+                        } else {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+
+                    animate();
+
+                    starDecreaseInterval = setInterval(() => {
+                        if (stars.value > 0) {
+                            stars.value--;
+                        }
+                    }, 100);
+
+                    bug.addEventListener('click', () => {
+                        const flyswatter = document.createElement('img');
+                        flyswatter.src = '/images/flyswatter.png';
+                        flyswatter.classList.add('flyswatter');
+                        flyswatter.style.left = `${x - 20}px`;
+                        flyswatter.style.top = `${y}px`;
+                        document.body.appendChild(flyswatter);
+                        bug.setAttribute('swatted', '');
+                        clearInterval(starDecreaseInterval);
+
+                        setTimeout(() => {
+                            document.body.removeChild(flyswatter);
+                            document.body.removeChild(bug);
+                        }, 1000);
+                    });
+                }
+
+                onMounted(() => {
+                    container = document.querySelector('.container');
+                    containerRect = container.getBoundingClientRect();
+
+                    for (let i = 0; i < 5; i++) {
+                        createButterfly();
+                    }
+
+                    setInterval(createBug, 5000);
+
+                    window.addEventListener('resize', () => {
+                        containerRect = container.getBoundingClientRect();
+                    });
+                });
+                
+                return {
+                    stars,
+                    currentStage,
+                    clickOnFlower
+                }
+            }
+        })
+        
+        app.mount('#app')
+    </script>
+</body>
+</html>
