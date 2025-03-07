@@ -192,9 +192,9 @@
         </div>
     </div>
 
-    <audio src="/sounds/next-level.mp3" preload="auto" style="display:none;"></audio>
-    <audio src="/sounds/completed.mp3" preload="auto" style="display:none;"></audio>
-    <audio src="/sounds/punch.mp3" preload="auto" style="display:none;"></audio>
+    <audio id="audio-next-level" src="/sounds/next-level.mp3" preload="auto" style="display:none;"></audio>
+    <audio id="audio-completed" src="/sounds/completed.mp3" preload="auto" style="display:none;"></audio>
+    <audio id="audio-punch" src="/sounds/punch.mp3" preload="auto" style="display:none;"></audio>
 
     <script>
         const { createApp, ref, computed, watch, onMounted  } = Vue
@@ -208,6 +208,10 @@
                     { stage: 4, requirementStars: 75 },
                     { stage: 5, requirementStars: 100 }
                 ];
+
+                const audioNextLevel = document.getElementById('audio-next-level');
+                const audioCompleted = document.getElementById('audio-completed');
+                const audioPunch = document.getElementById('audio-punch');
 
                 const butterflyImages = [
                     '/images/Butterfly1.png',
@@ -234,23 +238,13 @@
                     () => stages.findLast(stage => stage.requirementStars <= stars.value).stage,
                     (newStageIndex, oldStageIndex) => {
                         if (newStageIndex !== 5 && newStageIndex > oldStageIndex) {
-                            // const audioElement = document.createElement('audio');
-                            // audioElement.setAttribute('src', '/sounds/next-level.mp3');
-                            // audioElement.play();
-
-                            const audio = new Audio('/sounds/next-level.mp3');
-                            audio.play();
+                            audioNextLevel.play();
                         }
 
                         if (newStageIndex === 5) {
                             isFinish.value = true;
                             clearInterval(bugCreatorInterval);
-                            // const audioElement = document.createElement('audio');
-                            // audioElement.setAttribute('src', '/sounds/completed.mp3');
-                            // audioElement.play();
-
-                            const audio = new Audio('/sounds/completed.mp3');
-                            audio.play();
+                            audioCompleted.play();
                         }
                     },
 
@@ -422,12 +416,7 @@
                         bug.setAttribute('swatted', '');
                         clearInterval(starDecreaseInterval);
 
-                        // const audioElement = document.createElement('audio');
-                        // audioElement.setAttribute('src', '/sounds/punch.mp3');
-                        // audioElement.play();
-
-                        const audio = new Audio('/sounds/punch.mp3');
-                        audio.play();
+                        audioPunch.play();
 
                         setTimeout(() => {
                             document.body.removeChild(flyswatter);
